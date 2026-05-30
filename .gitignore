@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+app/chroma_db/
+app/database/chat.db
+app/static/images/
+.venv/
+venv/
