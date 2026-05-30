@@ -132,11 +132,13 @@ def prompt_builder_node(state: GraphState) -> dict:
 async def generate_node(state: GraphState) -> dict:
     """Run the question through ChatNVIDIA.
 
-    We `await` the whole answer here, but the WebSocket is listening for the
-    model's streaming events, so the user still sees tokens appear live.
+    We stream the response so that astream_events emits on_chat_model_stream
+    events for each token, allowing the WebSocket to forward them live.
     """
-    result = await get_llm().ainvoke(state["prompt_messages"])
-    return {"response": result.content}
+    chunks = []
+    async for chunk in get_llm().astream(state["prompt_messages"]):
+        chunks.append(chunk.content)
+    return {"response": "".join(chunks)}
 
 
 def citation_node(state: GraphState) -> dict:
